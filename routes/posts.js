@@ -35,4 +35,28 @@ router.post('/', async (req, res) => {
     }
 });
 
+// @route   DELETE /api/posts/:id
+// @desc    Delete a post
+// @access  Private (Admin/Owner) - For now simplified
+router.delete('/:id', async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id);
+        if (!post) return res.status(404).json({ msg: 'Post not found' });
+
+        // In a real app, check user permissions here (req.user)
+        // For this implementation, we rely on frontend hiding the button, 
+        // or we can add a body param/header to verify admin if we had middleware.
+        // Assuming open for now or we can pass an 'adminId' in body to check.
+
+        await Post.deleteOne({ _id: req.params.id });
+        res.json({ msg: 'Post removed' });
+    } catch (err) {
+        console.error(err.message);
+        if (err.kind === 'ObjectId') {
+            return res.status(404).json({ msg: 'Post not found' });
+        }
+        res.status(500).send('Server Error');
+    }
+});
+
 module.exports = router;

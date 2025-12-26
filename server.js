@@ -24,6 +24,8 @@ app.use('/api/user', require('./routes/user'));
 app.use('/api/posts', require('./routes/posts'));
 app.use('/api/connections', require('./routes/connections'));
 app.use('/api/messages', require('./routes/messages'));
+app.use('/api/events', require('./routes/events'));
+app.use('/api/jobs', require('./routes/jobs'));
 
 app.get('/', (req, res) => {
     res.send('CCET Alumni API is running');

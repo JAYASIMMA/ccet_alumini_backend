@@ -17,6 +17,18 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ msg: 'User already exists' });
         }
 
+        // Auto-Admin Logic
+        if (req.body.email === 'admin.ccet@gmail.com' || req.body.email === 'admin@ccet@gmail.com') {
+            req.body.isAdmin = true;
+            req.body.isAlumni = true;
+        }
+
+        // Ensure uid is generated if not provided (though frontend usually sends it, or we rely on 'u_' + date)
+        // If frontend doesn't send uid, we should generate it.
+        if (!req.body.uid) {
+            req.body.uid = 'u_' + Date.now();
+        }
+
         user = new User(req.body);
         await user.save();
 
