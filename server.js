@@ -1,0 +1,35 @@
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const path = require('path');
+require('dotenv').config();
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Database Connection
+const connectDB = require('./db');
+connectDB();
+
+// Routes
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/user', require('./routes/user'));
+app.use('/api/posts', require('./routes/posts'));
+app.use('/api/connections', require('./routes/connections'));
+app.use('/api/messages', require('./routes/messages'));
+
+app.get('/', (req, res) => {
+    res.send('CCET Alumni API is running');
+});
+
+// Start Server
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
