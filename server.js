@@ -49,6 +49,7 @@ app.use('/api/connections', require('./routes/connections'));
 app.use('/api/messages', require('./routes/messages'));
 app.use('/api/events', require('./routes/events'));
 app.use('/api/jobs', require('./routes/jobs'));
+app.use('/api/news', require('./routes/news'));
 app.use('/api/upload', require('./routes/upload'));
 
 app.get('/', (req, res) => {
