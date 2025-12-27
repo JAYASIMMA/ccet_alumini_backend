@@ -42,5 +42,5 @@ app.get('/', (req, res) => {
 // Start Server
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
-    console.log(`Access externally via http://<YOUR_LAN_IP>:${PORT}`);
+    console.log(`Access externally via http://192.168.1.33:${PORT}`);
 });
