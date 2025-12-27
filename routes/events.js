@@ -65,4 +65,35 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+// @route   PUT /api/events/:id
+// @desc    Update an event
+router.put('/:id', async (req, res) => {
+    try {
+        const { title, description, date, location, imageUrl } = req.body;
+
+        let event = await Event.findById(req.params.id);
+        if (!event) return res.status(404).json({ msg: 'Event not found' });
+
+        const requestUserUid = req.headers['x-user-id'];
+        const isAdmin = req.headers['x-is-admin'] === 'true';
+
+        // Permission Check: Admin can edit ALL. User can edit ONLY THEIR OWN.
+        if (!isAdmin && (!requestUserUid || requestUserUid !== event.organizerId)) {
+            return res.status(403).json({ msg: 'Not authorized to edit this event' });
+        }
+
+        event.title = title || event.title;
+        event.description = description || event.description;
+        event.date = date || event.date;
+        event.location = location || event.location;
+        if (imageUrl) event.imageUrl = imageUrl;
+
+        await event.save();
+        res.json(event);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
 module.exports = router;
