@@ -8,6 +8,7 @@ const eventSchema = new mongoose.Schema({
     organizer: { type: String, required: true }, // User UID or Name
     organizerId: { type: String, required: true }, // User UID
     imageUrl: String,
+    attachments: [String],
     createdAt: { type: Date, default: Date.now }
 });
 
