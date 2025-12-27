@@ -8,6 +8,8 @@ const jobSchema = new mongoose.Schema({
     link: String,
     description: String,
     postedBy: { type: String, required: true }, // User UID
+    images: [String], // Array of image URLs
+    attachments: [String], // Array of attachment URLs (PDFs)
     createdAt: { type: Date, default: Date.now }
 });
 

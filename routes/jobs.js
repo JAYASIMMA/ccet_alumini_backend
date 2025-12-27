@@ -29,13 +29,10 @@ router.post('/', async (req, res) => {
         }
 
         const newJob = new Job({
-            title,
-            company,
-            location,
-            type,
-            link,
             description,
-            postedBy
+            postedBy,
+            images: req.body.images || [],
+            attachments: req.body.attachments || []
         });
 
         const job = await newJob.save();
@@ -53,8 +50,19 @@ router.delete('/:id', async (req, res) => {
         const job = await Job.findById(req.params.id);
         if (!job) return res.status(404).json({ msg: 'Job not found' });
 
-        await Job.deleteOne({ _id: req.params.id });
-        res.json({ msg: 'Job removed' });
+        const requestUserUid = req.headers['x-user-id']; // Sent from frontend
+        const isAdmin = req.headers['x-is-admin'] === 'true';
+
+        console.log(`Delete Job Request - JobID: ${req.params.id}, User: ${requestUserUid}, Admin: ${isAdmin}, JobOwner: ${job.postedBy}`);
+
+        // Permission Check: Admin can delete ALL. User can delete ONLY THEIR OWN.
+        if (isAdmin || (requestUserUid && requestUserUid === job.postedBy)) {
+            await Job.deleteOne({ _id: req.params.id });
+            return res.json({ msg: 'Job removed' });
+        }
+
+        return res.status(403).json({ msg: 'Not authorized to delete this job' });
+
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
