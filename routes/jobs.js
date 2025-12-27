@@ -41,6 +41,9 @@ router.post('/', async (req, res) => {
         });
 
         const job = await newJob.save();
+        if (req.io) {
+            req.io.emit('new_job', job);
+        }
         res.json(job);
     } catch (err) {
         console.error(err.message);
@@ -68,6 +71,42 @@ router.delete('/:id', async (req, res) => {
 
         return res.status(403).json({ msg: 'Not authorized to delete this job' });
 
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   PUT /api/jobs/:id
+// @desc    Update a job
+router.put('/:id', async (req, res) => {
+    try {
+        const { title, company, location, type, link, description } = req.body;
+
+        let job = await Job.findById(req.params.id);
+        if (!job) return res.status(404).json({ msg: 'Job not found' });
+
+        const requestUserUid = req.headers['x-user-id']; // Sent from frontend
+        const isAdmin = req.headers['x-is-admin'] === 'true';
+
+        // Permission Check: Admin can edit ALL. User can edit ONLY THEIR OWN.
+        if (!isAdmin && (!requestUserUid || requestUserUid !== job.postedBy)) {
+            return res.status(403).json({ msg: 'Not authorized to edit this job' });
+        }
+
+        job.title = title || job.title;
+        job.company = company || job.company;
+        job.location = location || job.location;
+        job.type = type || job.type;
+        job.link = link || job.link;
+        job.description = description || job.description;
+
+        if (req.body.images) job.images = req.body.images;
+        if (req.body.attachments) job.attachments = req.body.attachments;
+
+        await job.save();
+
+        res.json(job);
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

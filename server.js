@@ -5,13 +5,30 @@ const bodyParser = require('body-parser');
 const path = require('path');
 require('dotenv').config();
 
+const http = require('http');
+const socketIo = require('socket.io');
+
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server, {
+    cors: {
+        origin: "*", // Allow all origins for local dev
+        methods: ["GET", "POST"]
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// Attach Socket.IO to request object
+app.use((req, res, next) => {
+    req.io = io;
+    next();
+});
 
 // Request Logging Middleware
 app.use((req, res, next) => {
@@ -38,9 +55,16 @@ app.get('/', (req, res) => {
     res.send('CCET Alumni API is running');
 });
 
+// Socket.IO Connection
+io.on('connection', (socket) => {
+    console.log('New client connected');
+    socket.on('disconnect', () => {
+        console.log('Client disconnected');
+    });
+});
+
 // Start Server
-// Start Server
-app.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
     console.log(`Access externally via http://192.168.1.33:${PORT}`);
 });
