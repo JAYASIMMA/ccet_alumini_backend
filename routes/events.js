@@ -57,8 +57,21 @@ router.delete('/:id', async (req, res) => {
         const event = await Event.findById(req.params.id);
         if (!event) return res.status(404).json({ msg: 'Event not found' });
 
-        await Event.deleteOne({ _id: req.params.id });
-        res.json({ msg: 'Event removed' });
+        const requestUserUid = req.headers['x-user-id']; // Sent from frontend
+        // Robust boolean conversion
+        const isAdmin = String(req.headers['x-is-admin']).toLowerCase() === 'true';
+
+        console.log(`Delete Event Request - ID: ${req.params.id}`);
+        console.log(`Headers - UID: ${requestUserUid}, IsAdminHeader: ${req.headers['x-is-admin']}, IsAdminParsed: ${isAdmin}`);
+
+        // Permission Check: Admin can delete ALL. User can delete ONLY THEIR OWN.
+        if (isAdmin || (requestUserUid && requestUserUid === event.organizerId)) {
+            await Event.deleteOne({ _id: req.params.id });
+            return res.json({ msg: 'Event removed' });
+        }
+
+        console.log('Delete Event Failed: Unauthorized');
+        return res.status(403).json({ msg: 'Not authorized to delete this event' });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

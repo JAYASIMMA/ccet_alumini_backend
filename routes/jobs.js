@@ -59,9 +59,12 @@ router.delete('/:id', async (req, res) => {
         if (!job) return res.status(404).json({ msg: 'Job not found' });
 
         const requestUserUid = req.headers['x-user-id']; // Sent from frontend
-        const isAdmin = req.headers['x-is-admin'] === 'true';
+        // Robust boolean conversion
+        const isAdmin = String(req.headers['x-is-admin']).toLowerCase() === 'true';
 
-        console.log(`Delete Job Request - JobID: ${req.params.id}, User: ${requestUserUid}, Admin: ${isAdmin}, JobOwner: ${job.postedBy}`);
+        console.log(`Delete Job Request - JobID: ${req.params.id}`);
+        console.log(`Headers - UID: ${requestUserUid}, IsAdminHeader: ${req.headers['x-is-admin']}, IsAdminParsed: ${isAdmin}`);
+        console.log(`Job PostedBy: ${job.postedBy}`);
 
         // Permission Check: Admin can delete ALL. User can delete ONLY THEIR OWN.
         if (isAdmin || (requestUserUid && requestUserUid === job.postedBy)) {
@@ -69,6 +72,7 @@ router.delete('/:id', async (req, res) => {
             return res.json({ msg: 'Job removed' });
         }
 
+        console.log('Delete Job Failed: Unauthorized');
         return res.status(403).json({ msg: 'Not authorized to delete this job' });
 
     } catch (err) {
