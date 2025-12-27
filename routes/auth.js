@@ -6,15 +6,19 @@ const User = require('../models/User');
 // @desc    Register a new user
 // @access  Public
 router.post('/register', async (req, res) => {
+
     const {
-        email, password, firstName, lastName, department,
-        rollNumber, phoneNumber, resAddressLine1, resDistrict, resPincode
+        email, username, password, firstName, lastName, department,
+        rollNumber, phoneNumber, resAddressLine1, resDistrict, resPincode,
+        role, currentYear, semester
     } = req.body;
 
     try {
-        let user = await User.findOne({ email });
+        let user = await User.findOne({
+            $or: [{ email }, { username }]
+        });
         if (user) {
-            return res.status(400).json({ msg: 'User already exists' });
+            return res.status(400).json({ msg: 'User already exists (Email or Username taken)' });
         }
 
         // Auto-Admin Logic
@@ -46,10 +50,10 @@ router.post('/register', async (req, res) => {
 // @desc    Login user
 // @access  Public
 router.post('/login', async (req, res) => {
-    const { email, password } = req.body;
+    const { username, password } = req.body;
 
     try {
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ username });
         if (!user) {
             return res.status(400).json({ msg: 'Invalid Credentials' });
         }

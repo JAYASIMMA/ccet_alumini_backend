@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
     uid: { type: String, required: true, unique: true }, // Using UID from Flutter or generating one
+    username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     password: { type: String }, // For simple auth
     profileImageUrl: String,
@@ -13,6 +14,7 @@ const userSchema = new mongoose.Schema({
     dateOfBirth: Date,
     phoneNumber: { type: String, required: true },
     countryCode: { type: String, default: '+91' },
+    bloodGroup: { type: String },
 
     // Residential Address
     resAddressLine1: { type: String, required: true },
@@ -21,8 +23,13 @@ const userSchema = new mongoose.Schema({
     resPincode: { type: String, required: true },
 
     // Role Info
+    role: { type: String, enum: ['alumni', 'student', 'admin'], default: 'alumni' }, // Default to alumni for backward compatibility or change logic
     isAdmin: { type: Boolean, default: false },
-    isAlumni: { type: Boolean, default: false },
+    isAlumni: { type: Boolean, default: false }, // Keep for now, but role replaces this usage mostly
+
+    // Student Specific
+    currentYear: String, // 1, 2, 3, 4
+    semester: String,
 
     // Placement Info
     isPlaced: { type: Boolean, default: false },
