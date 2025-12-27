@@ -19,11 +19,16 @@ const upload = multer({
 
 
 // @route   GET /api/user/all
-// @desc    Get all users
+// @desc    Get all users (optionally filtered by department)
 router.get('/all', async (req, res) => {
     try {
-        // Admin viewing all users - for this feature, including password
-        const users = await User.find(); // Removed .select('-password') to allow admin see pass
+        const query = {};
+        if (req.query.department) {
+            query.department = req.query.department;
+        }
+
+        // Admin/HOD viewing users
+        const users = await User.find(query);
         res.json(users);
     } catch (err) {
         console.error(err.message);
