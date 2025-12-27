@@ -75,10 +75,14 @@ router.put('/:id', async (req, res) => {
         if (!event) return res.status(404).json({ msg: 'Event not found' });
 
         const requestUserUid = req.headers['x-user-id'];
-        const isAdmin = req.headers['x-is-admin'] === 'true';
+        const isAdmin = String(req.headers['x-is-admin']).toLowerCase() === 'true';
+
+        console.log(`Update Event Request - ID: ${req.params.id}`);
+        console.log(`Headers - UID: ${requestUserUid}, IsAdminHeader: ${req.headers['x-is-admin']}, IsAdminParsed: ${isAdmin}`);
 
         // Permission Check: Admin can edit ALL. User can edit ONLY THEIR OWN.
         if (!isAdmin && (!requestUserUid || requestUserUid !== event.organizerId)) {
+            console.log('Update Event Failed: Unauthorized');
             return res.status(403).json({ msg: 'Not authorized to edit this event' });
         }
 

@@ -87,10 +87,18 @@ router.put('/:id', async (req, res) => {
         if (!job) return res.status(404).json({ msg: 'Job not found' });
 
         const requestUserUid = req.headers['x-user-id']; // Sent from frontend
-        const isAdmin = req.headers['x-is-admin'] === 'true';
+        // Robust boolean conversion
+        const isAdmin = String(req.headers['x-is-admin']).toLowerCase() === 'true';
+
+        console.log(`Update Job Request - ID: ${req.params.id}`);
+        console.log(`Headers - UID: ${requestUserUid}, IsAdminHeader: ${req.headers['x-is-admin']}, IsAdminParsed: ${isAdmin}`);
+        console.log(`Job PostedBy: ${job.postedBy}`);
 
         // Permission Check: Admin can edit ALL. User can edit ONLY THEIR OWN.
+        // We use loose equality for IDs in case one is weirdly formatted, but strict is better if types match.
+        // job.postedBy is likely a String (from schema). requestUserUid is String.
         if (!isAdmin && (!requestUserUid || requestUserUid !== job.postedBy)) {
+            console.log('Update Job Failed: Unauthorized');
             return res.status(403).json({ msg: 'Not authorized to edit this job' });
         }
 
