@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
 
 // Create new news
 router.post('/', async (req, res) => {
-    const { title, content, department, image, author } = req.body;
+    const { title, content, department, image, author, links } = req.body;
 
     // Validate required fields
     if (!title || !content) {
@@ -28,7 +28,8 @@ router.post('/', async (req, res) => {
         content,
         department,
         image,
-        author
+        author,
+        links
     });
 
     try {

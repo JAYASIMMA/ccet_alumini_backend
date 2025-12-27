@@ -21,6 +21,12 @@ const NewsSchema = new mongoose.Schema({
     image: {
         type: String // Optional URL for news image
     },
+    links: {
+        whatsapp: String,
+        youtube: String,
+        facebook: String,
+        instagram: String
+    },
     author: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
