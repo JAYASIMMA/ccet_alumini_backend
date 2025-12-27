@@ -4,37 +4,50 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+// Usage: node create_admin.js [username] [email] [password]
 const createAdmin = async () => {
     try {
-        await mongoose.connect(process.env.MONGO_URI, {
+        await mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/ccet_alumini', {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
         console.log('MongoDB Connected');
 
-        // Get args
-        const args = process.argv.slice(2);
-        const email = args[0];
-        const password = args[1];
+        // Defaults
+        let username = 'admin';
+        let email = 'admin@ccet.com';
+        let password = 'admin';
 
-        if (!email || !password) {
-            console.log('Usage: node create_admin.js <email> <password>');
-            process.exit(1);
+        // Override with args if provided
+        const args = process.argv.slice(2);
+        if (args.length >= 3) {
+            username = args[0];
+            email = args[1];
+            password = args[2];
+        } else if (args.length > 0) {
+            console.log('Usage: node create_admin.js [username] [email] [password]');
+            console.log('Using defaults...');
         }
 
-        let user = await User.findOne({ email });
+        let user = await User.findOne({
+            $or: [{ email }, { username }]
+        });
 
         if (user) {
-            console.log('User exists. Promoting to Admin...');
+            console.log(`User found (${user.username} / ${user.email}). Promoting to Admin...`);
             user.isAdmin = true;
+            user.isAlumni = true;
+            user.role = 'admin';
+            user.password = password; // Update password
             await user.save();
-            console.log(`User ${email} is now an Admin.`);
+            console.log('User updated to Admin.');
         } else {
-            console.log('Creating new Admin User...');
+            console.log(`Creating new Admin User: ${username} (${email})...`);
             user = new User({
                 uid: 'admin_' + Date.now(),
+                username,
                 email,
-                password, // Note: Password hashing should be implemented in real app
+                password,
                 firstName: 'Admin',
                 lastName: 'User',
                 isAdmin: true,
@@ -44,12 +57,14 @@ const createAdmin = async () => {
                 phoneNumber: '0000000000',
                 resAddressLine1: 'Admin Office',
                 resDistrict: 'Campus',
-                resPincode: '000000'
+                resPincode: '000000',
+                role: 'admin'
             });
             await user.save();
-            console.log(`Admin user ${email} created.`);
+            console.log('Admin user created successfully.');
         }
 
+        console.log(`\nCredentials:\nUsername: ${username}\nEmail: ${email}\nPassword: ${password}\n`);
         process.exit(0);
 
     } catch (err) {

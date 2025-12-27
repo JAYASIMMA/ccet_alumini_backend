@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
     resPincode: { type: String, required: true },
 
     // Role Info
-    role: { type: String, enum: ['alumni', 'student', 'admin'], default: 'alumni' }, // Default to alumni for backward compatibility or change logic
+    role: { type: String, enum: ['alumni', 'student', 'admin', 'hod', 'faculty'], default: 'alumni' }, // Default to alumni for backward compatibility or change logic
     isAdmin: { type: Boolean, default: false },
     isAlumni: { type: Boolean, default: false }, // Keep for now, but role replaces this usage mostly
 

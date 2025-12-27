@@ -54,9 +54,21 @@ router.post('/upload', (req, res) => {
             if (req.file == undefined) {
                 res.status(400).json({ msg: 'No File Selected!' });
             } else {
+                // Return relative path or construct based on env/request
+                // Simpler for now: return relative filename, let frontend handle full URL or return path relative to server root
+                // Current frontend uses NetworkImage(url).
+                // Best approach for local dev: use the host from the request if possible, or relative path if frontend prepends baseUrl.
+                // But frontend likely expects full URL.
+                // Let's use relative path '/uploads/filename' and assume frontend *should* prepend baseUrl if it's not absolute, 
+                // OR we construct it using the request host.
+
+                const protocol = req.protocol;
+                const host = req.get('host');
+                const fullUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+
                 res.json({
                     msg: 'File Uploaded!',
-                    file: `http://localhost:3000/uploads/${req.file.filename}`
+                    file: fullUrl
                 });
             }
         }
