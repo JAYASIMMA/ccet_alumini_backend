@@ -24,11 +24,16 @@ router.post('/', async (req, res) => {
         const user = await User.findOne({ uid: postedBy });
         if (!user) return res.status(404).json({ msg: 'User not found' });
 
-        if (!user.isAdmin) {
-            return res.status(403).json({ msg: 'Only Admins can post jobs' });
+        if (!user.isAdmin && user.role !== 'alumni') {
+            return res.status(403).json({ msg: 'Only Admins and Alumni can post jobs' });
         }
 
         const newJob = new Job({
+            title,
+            company,
+            location,
+            type,
+            link,
             description,
             postedBy,
             images: req.body.images || [],
