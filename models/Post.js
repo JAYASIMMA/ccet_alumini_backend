@@ -18,6 +18,10 @@ const PostSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
+    },
+    expiresAt: {
+        type: Date,
+        index: { expires: '1s' } // Deletes 1 second after the specified date
     }
 });
 

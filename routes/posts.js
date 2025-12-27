@@ -24,7 +24,8 @@ router.post('/', async (req, res) => {
             authorName: req.body.authorName,
             authorImage: req.body.authorImage,
             content: req.body.content,
-            imageUrl: req.body.imageUrl
+            imageUrl: req.body.imageUrl,
+            expiresAt: req.body.expiresAt // Optional expiration date
         });
 
         const post = await newPost.save();
