@@ -44,17 +44,51 @@ router.post('/', async (req, res) => {
     }
 });
 
+// Update news
+router.put('/:id', async (req, res) => {
+    try {
+        const userHeader = req.headers['x-user-id'];
+        const isAdminHeader = req.headers['x-is-admin'] === 'true';
+        const userDeptHeader = req.headers['x-user-department'];
+
+        const news = await News.findById(req.params.id);
+        if (!news) return res.status(404).json({ message: 'News not found' });
+
+        // Permission check: Admin can update all; HOD/Faculty can update their department's news
+        const isAuthor = news.author && news.author.toString() === userHeader;
+        const isSameDept = news.department === userDeptHeader;
+
+        if (!isAdminHeader && !isAuthor && !isSameDept) {
+            return res.status(403).json({ message: 'Not authorized to update this news' });
+        }
+
+        const updatedNews = await News.findByIdAndUpdate(
+            req.params.id,
+            { $set: req.body },
+            { new: true }
+        ).populate('author', 'username role profileImage');
+
+        res.json(updatedNews);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 // Delete news
 router.delete('/:id', async (req, res) => {
     try {
         const userHeader = req.headers['x-user-id'];
         const isAdminHeader = req.headers['x-is-admin'] === 'true';
+        const userDeptHeader = req.headers['x-user-department'];
 
         const news = await News.findById(req.params.id);
         if (!news) return res.status(404).json({ message: 'News not found' });
 
-        // Basic permission check
-        if (!isAdminHeader && news.author && news.author.toString() !== userHeader) {
+        // Permission check: Admin can delete all; Author or Same Dept HOD/Faculty
+        const isAuthor = news.author && news.author.toString() === userHeader;
+        const isSameDept = news.department === userDeptHeader;
+
+        if (!isAdminHeader && !isAuthor && !isSameDept) {
             return res.status(403).json({ message: 'Not authorized to delete this news' });
         }
 
