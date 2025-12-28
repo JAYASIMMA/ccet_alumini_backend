@@ -23,8 +23,8 @@ router.post('/', upload.single('file'), (req, res) => {
         }
 
         // Return resource URL (relative)
-        const imageUrl = `/uploads/${req.file.filename}`;
-        res.json({ imageUrl });
+        const fileUrl = `/uploads/${req.file.filename}`;
+        res.json({ imageUrl: fileUrl, fileUrl });
     } catch (error) {
         console.error("Upload Error:", error);
         res.status(500).json({ error: 'Server Error' });

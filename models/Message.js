@@ -19,6 +19,10 @@ const MessageSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    audioUrl: {
+        type: String,
+        required: false
+    },
     readStatus: {
         type: Boolean,
         default: false

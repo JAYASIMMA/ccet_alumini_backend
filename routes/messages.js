@@ -8,7 +8,7 @@ const Connection = require('../models/Connection');
 // @route   POST /api/messages/send
 // @desc    Send a message
 router.post('/send', async (req, res) => {
-    const { sender, recipient, content, imageUrl } = req.body;
+    const { sender, recipient, content, imageUrl, audioUrl } = req.body;
 
     try {
         // Verify connection exists (optional but recommended)
@@ -27,7 +27,8 @@ router.post('/send', async (req, res) => {
             sender,
             recipient,
             content,
-            imageUrl
+            imageUrl,
+            audioUrl
         });
 
         const msg = await newMessage.save();
