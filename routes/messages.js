@@ -57,4 +57,23 @@ router.get('/:uid/:targetUid', async (req, res) => {
     }
 });
 
+// @route   PUT /api/messages/mark-read
+// @desc    Mark messages as read
+router.put('/mark-read', async (req, res) => {
+    const { uid, targetUid } = req.body;
+
+    try {
+        // Update all messages where sender is targetUid and recipient is uid (me)
+        await Message.updateMany(
+            { sender: targetUid, recipient: uid, readStatus: false },
+            { $set: { readStatus: true } }
+        );
+
+        res.json({ msg: 'Messages marked as read' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
 module.exports = router;
