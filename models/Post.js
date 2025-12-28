@@ -22,6 +22,11 @@ const PostSchema = new mongoose.Schema({
     expiresAt: {
         type: Date,
         index: { expires: '1s' } // Deletes 1 second after the specified date
+    },
+    club: {
+        type: String,
+        enum: ['NSS', 'LEO', 'Rotary', null],
+        default: null
     }
 });
 

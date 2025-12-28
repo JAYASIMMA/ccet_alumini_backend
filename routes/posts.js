@@ -7,7 +7,11 @@ const Post = require('../models/Post');
 // @access  Public
 router.get('/', async (req, res) => {
     try {
-        const posts = await Post.find().sort({ createdAt: -1 });
+        const query = {};
+        if (req.query.club) {
+            query.club = req.query.club;
+        }
+        const posts = await Post.find(query).sort({ createdAt: -1 });
         res.json(posts);
     } catch (err) {
         console.error(err.message);
@@ -25,7 +29,8 @@ router.post('/', async (req, res) => {
             authorImage: req.body.authorImage,
             content: req.body.content,
             imageUrl: req.body.imageUrl,
-            expiresAt: req.body.expiresAt // Optional expiration date
+            expiresAt: req.body.expiresAt, // Optional expiration date
+            club: req.body.club || null
         });
 
         const post = await newPost.save();
