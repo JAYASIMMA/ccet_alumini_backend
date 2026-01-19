@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
 // @desc    Create a new event
 router.post('/', async (req, res) => {
     try {
-        const { title, description, date, location, organizerId, imageUrl } = req.body;
+        const { title, description, date, location, organizerId, imageUrl, attachments } = req.body;
 
         // Check if user is Alumni or Admin
         const user = await User.findOne({ uid: organizerId });
@@ -36,7 +36,8 @@ router.post('/', async (req, res) => {
             location,
             organizer: user.firstName + ' ' + user.lastName,
             organizerId,
-            imageUrl
+            imageUrl,
+            attachments
         });
 
         const event = await newEvent.save();
@@ -82,7 +83,7 @@ router.delete('/:id', async (req, res) => {
 // @desc    Update an event
 router.put('/:id', async (req, res) => {
     try {
-        const { title, description, date, location, imageUrl } = req.body;
+        const { title, description, date, location, imageUrl, attachments } = req.body;
 
         let event = await Event.findById(req.params.id);
         if (!event) return res.status(404).json({ msg: 'Event not found' });
@@ -104,6 +105,7 @@ router.put('/:id', async (req, res) => {
         event.date = date || event.date;
         event.location = location || event.location;
         if (imageUrl) event.imageUrl = imageUrl;
+        if (attachments) event.attachments = attachments;
 
         await event.save();
         res.json(event);
